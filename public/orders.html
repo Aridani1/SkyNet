@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>SkyNet – Orders</title>
+<link href="css/styles.css" rel="stylesheet"/>
+</head>
+<body>
+<header>
+<nav class="nav">
+      <a href="index.html" class="brand" style="text-decoration: none; color: inherit;">
+        <span>🚁</span>
+        <span>SkyNet</span>
+      </a>
+<div class="links">
+<a data-nav="" href="index.html">Home</a>
+<a data-nav="" href="services.html">Services</a>
+<a data-nav="" href="order.html">Order</a>
+<a data-nav="" href="track.html">Track</a>
+<a data-nav="" href="orders.html">Orders</a>
+<a data-nav="" href="contact.html">Contact</a>
+<a data-nav href="admin-fleet.html">Fleet</a>
+        <a data-nav href="admin-stats.html">Statistics</a>
+        <a data-nav href="admin-contacts.html">Messages</a>
+</div>
+</nav>
+</header>
+<main class="container">
+<div class="card">
+<h2>Orders</h2>
+<p>Filter by status or search by name/ID.</p>
+<div class="row" style="margin-bottom:10px;">
+<input id="q" placeholder="Search…" style="max-width:320px;"/>
+<select id="status" style="max-width:220px;">
+<option value="all">All statuses</option>
+<option value="in_transit">in_transit</option>
+<option value="delivered">delivered</option>
+<option value="cancelled">cancelled</option>
+</select>
+</div>
+<table class="table">
+<thead>
+<tr>
+<th>ID</th>
+<th>Customer</th>
+<th>Route</th>
+<th>Status</th><th>ETA</th>
+<th>Time</th>
+<th></th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+<div class="hint" id="hint">—</div>
+</div>
+</main>
+<script src="js/common.js"></script>
+<script src="js/orders.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+{
+  "deliveryTypes": [
+    {
+      "id": "light",
+      "label": "Light package (under 5 kg)",
+      "maxWeightKg": 5,
+      "baseNok": 49,
+      "perKmNok": 3
+    },
+    {
+      "id": "heavy",
+      "label": "Heavy package (5–20 kg)",
+      "maxWeightKg": 20,
+      "baseNok": 79,
+      "perKmNok": 4
+    },
+    {
+      "id": "longrange",
+      "label": "Long range (0–20 kg, up to 90 km)",
+      "maxWeightKg": 20,
+      "baseNok": 119,
+      "perKmNok": 2.5
+    }
+  ],
+  "presetLocations": [
+    {
+      "id": "vestfold",
+      "label": "Campus Vestfold (USN)",
+      "lat": 59.132,
+      "lng": 10.216
+    },
+    {
+      "id": "tonsberg",
+      "label": "Tønsberg sentrum",
+      "lat": 59.2675,
+      "lng": 10.4074
+    },
+    {
+      "id": "sandefjord",
+      "label": "Sandefjord sentrum",
+      "lat": 59.1312,
+      "lng": 10.2166
+    },
+    {
+      "id": "larvik",
+      "label": "Larvik sentrum",
+      "lat": 59.0533,
+      "lng": 10.0352
+    }
+  ]
+}

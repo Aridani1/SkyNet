@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkyNet – Order</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+  <header>
+    <nav class="nav">
+      <a href="index.html" class="brand" style="text-decoration: none; color: inherit;">
+        <span>🚁</span>
+        <span>SkyNet</span>
+      </a>
+      <div class="links">
+        <a data-nav href="index.html">Home</a>
+        <a data-nav href="services.html">Services</a>
+        <a data-nav href="order.html" aria-current="page">Order</a>
+        <a data-nav href="track.html">Track</a>
+        <a data-nav href="orders.html">Orders</a>
+        <a data-nav href="contact.html">Contact</a>
+        <a data-nav href="admin-fleet.html">Fleet</a>
+        <a data-nav href="admin-stats.html">Statistics</a>
+        <a data-nav href="admin-contacts.html">Messages</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <h2>Order drone delivery</h2>
+      <p>
+        Search addresses or click on the map to set pickup/delivery. The drone route starts/ends at the base.
+      </p>
+
+      <div class="twoCol">
+        <!-- LEFT: form -->
+        <div class="stack">
+          <div class="grid2">
+            <div>
+              <label for="firstName">First name</label>
+              <input id="firstName" placeholder="John" autocomplete="given-name" />
+            </div>
+            <div>
+              <label for="lastName">Last name</label>
+              <input id="lastName" placeholder="Doe" autocomplete="family-name" />
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label for="phone">Phone</label>
+              <input id="phone" placeholder="12345678" autocomplete="tel" />
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input id="email" type="email" placeholder="name@example.com" autocomplete="email" />
+            </div>
+          </div>
+
+          <!-- ADDRESS SEARCH -->
+          <div class="grid2">
+            <div>
+              <label for="pickupSearch">Pickup address search</label>
+              <input id="pickupSearch" placeholder="Search pickup address…" autocomplete="off" />
+              <div class="hint">
+                <div style="margin-bottom:4px;">Start typing to see address suggestions.</div>
+                Address: <span id="pickupAddr">—</span> ·
+                <a id="pickupGmaps" href="#" target="_blank" rel="noopener">Open in Google Maps</a>
+              </div>
+            </div>
+
+            <div>
+              <label for="deliverySearch">Delivery address search</label>
+              <input id="deliverySearch" placeholder="Search delivery address…" autocomplete="off" />
+              <div class="hint">
+                <div style="margin-bottom:4px;">Start typing to see address suggestions.</div>
+                Address: <span id="deliveryAddr">—</span> ·
+                <a id="deliveryGmaps" href="#" target="_blank" rel="noopener">Open in Google Maps</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- COORDINATES -->
+          <div class="grid2">
+            <div>
+              <label>Pickup coordinates</label>
+              <div class="grid2">
+                <div>
+                  <label for="pickupLat" class="srOnly">Latitude</label>
+                  <input id="pickupLat" type="number" step="0.000001" placeholder="Lat (e.g. 59.9139)" />
+                </div>
+                <div>
+                  <label for="pickupLng" class="srOnly">Longitude</label>
+                  <input id="pickupLng" type="number" step="0.000001" placeholder="Lng (e.g. 10.7522)" />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label>Delivery coordinates</label>
+              <div class="grid2">
+                <div>
+                  <label for="deliveryLat" class="srOnly">Latitude</label>
+                  <input id="deliveryLat" type="number" step="0.000001" placeholder="Lat (e.g. 59.9230)" />
+                </div>
+                <div>
+                  <label for="deliveryLng" class="srOnly">Longitude</label>
+                  <input id="deliveryLng" type="number" step="0.000001" placeholder="Lng (e.g. 10.7330)" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label for="weight">Weight (kg)</label>
+              <input id="weight" type="number" min="0" max="20" step="0.1" value="1.0" />
+            </div>
+            <div>
+              <label>Package dimensions (cm)</label>
+              <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+                <div>
+                  <label for="pkgLength" class="srOnly">Length</label>
+                  <input id="pkgLength" type="number" min="1" max="100" step="1" value="20" placeholder="L" title="Length (cm)" />
+                </div>
+                <div>
+                  <label for="pkgWidth" class="srOnly">Width</label>
+                  <input id="pkgWidth" type="number" min="1" max="100" step="1" value="15" placeholder="W" title="Width (cm)" />
+                </div>
+                <div>
+                  <label for="pkgHeight" class="srOnly">Height</label>
+                  <input id="pkgHeight" type="number" min="1" max="100" step="1" value="10" placeholder="H" title="Height (cm)" />
+                </div>
+              </div>
+              <div class="hint" style="margin-top:4px; font-size:11px;">Length × Width × Height</div>
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label>Delivery type (auto-selected)</label>
+              <div id="autoTypeDisplay" class="badge" style="margin-top:6px; font-size:1em; padding:8px 14px;">Set addresses and weight to auto-detect</div>
+              <input type="hidden" id="deliveryType" value="" />
+            </div>
+            <div>
+              <label>Basket fit</label>
+              <div id="basketFitDisplay" class="badge" style="margin-top:6px; font-size:1em; padding:8px 14px;">Enter dimensions to check</div>
+            </div>
+          </div>
+
+          <div>
+            <label for="notes">Notes (optional)</label>
+            <textarea id="notes" placeholder="E.g. call upon delivery..."></textarea>
+          </div>
+
+          <div class="row">
+            <button class="btn" id="createOrderBtn" type="button">Create order</button>
+            <span class="badge" id="estimateBadge">Estimate: —</span>
+          </div>
+
+          <div class="hint" id="statusHint">
+            Fill in the fields and click “Create order”.
+          </div>
+        </div>
+
+        <!-- RIGHT: map -->
+        <div class="stack">
+          <div class="row">
+            <button class="btn" id="pickPickupBtn" type="button">Choose pickup on map</button>
+            <button class="btn" id="pickDeliveryBtn" type="button">Choose delivery on map</button>
+            <button class="btn" id="simulateDroneBtn" type="button">Simulate drone trip</button>
+            <button class="btn" id="stopDroneBtn" type="button">Stop</button>
+          </div>
+
+          <div class="row">
+            <span class="badge" id="pickModeBadge">Picking: pickup</span>
+            <span class="badge" id="droneBadge">Drone: idle</span>
+          </div>
+
+          <div class="mapBox" id="mapBox">
+            <div class="mapPlaceholder">
+              The map will appear here when you add a Google Maps API key in <code>public/js/config.js</code>.
+              <br /><br />
+              The app still works without the key.
+            </div>
+          </div>
+
+          <div class="hint">
+            Base → Pickup → Delivery → Base. You can search addresses, click map, or type coordinates.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/order.js"></script>
+</body>
+</html>

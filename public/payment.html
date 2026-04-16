@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkyNet – Payment</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .payment-container {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .order-summary {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 16px;
+      border-radius: 14px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .summary-row.total {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+      margin-top: 4px;
+    }
+    .card-visual {
+      background: linear-gradient(135deg, #1a2a4a 0%, #0d1b30 50%, #1a3050 100%);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(122,162,255,0.2);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    .card-visual::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -30%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(122,162,255,0.15), transparent 70%);
+      border-radius: 50%;
+    }
+    .card-visual .chip {
+      width: 40px;
+      height: 28px;
+      background: linear-gradient(135deg, #d4a853, #c49b45);
+      border-radius: 6px;
+      margin-bottom: 18px;
+    }
+    .card-number {
+      font-size: 20px;
+      letter-spacing: 3px;
+      font-family: monospace;
+      margin-bottom: 14px;
+      color: rgba(255,255,255,0.85);
+    }
+    .card-details {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: rgba(255,255,255,0.55);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .card-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .pay-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 1.1em;
+      margin-top: 10px;
+      background: linear-gradient(135deg, rgba(82,255,168,0.25), rgba(122,162,255,0.25));
+      border: 1px solid rgba(82,255,168,0.35);
+      transition: all 0.3s ease;
+    }
+    .pay-btn:hover {
+      background: linear-gradient(135deg, rgba(82,255,168,0.35), rgba(122,162,255,0.35));
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(82,255,168,0.15);
+    }
+    .pay-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .processing {
+      text-align: center;
+      padding: 30px;
+      display: none;
+    }
+    .processing.active {
+      display: block;
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent2);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .success-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    .secure-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <nav class="nav">
+      <a href="index.html" class="brand" style="text-decoration: none; color: inherit;">
+        <span>🚁</span>
+        <span>SkyNet</span>
+      </a>
+      <div class="links">
+        <a data-nav href="index.html">Home</a>
+        <a data-nav href="services.html">Services</a>
+        <a data-nav href="order.html">Order</a>
+        <a data-nav href="track.html">Track</a>
+        <a data-nav href="orders.html">Orders</a>
+        <a data-nav href="contact.html">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="payment-container">
+      <div class="card" id="paymentCard">
+        <h2>💳 Payment</h2>
+        <p class="muted">Review your order and complete payment.</p>
+
+        <!-- Order summary -->
+        <div class="order-summary" id="orderSummary">
+          <div class="summary-row">
+            <span>Loading order…</span>
+          </div>
+        </div>
+
+        <!-- Credit card visual -->
+        <div class="card-visual" id="cardVisual">
+          <div class="chip"></div>
+          <div class="card-number" id="cardNumberDisplay">•••• •••• •••• ••••</div>
+          <div class="card-details">
+            <div>
+              <div>Card holder</div>
+              <div id="holderDisplay" style="color:rgba(255,255,255,0.8); margin-top:2px;">YOUR NAME</div>
+            </div>
+            <div>
+              <div>Expires</div>
+              <div id="expiryDisplay" style="color:rgba(255,255,255,0.8); margin-top:2px;">MM/YY</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card input fields -->
+        <div class="card-fields">
+          <div>
+            <label for="cardHolder">Cardholder name</label>
+            <input id="cardHolder" placeholder="John Doe" value="" />
+          </div>
+          <div>
+            <label for="cardNumber">Card number</label>
+            <input id="cardNumber" placeholder="4242 4242 4242 4242" maxlength="19" value="4242 4242 4242 4242" />
+          </div>
+          <div class="grid2">
+            <div>
+              <label for="cardExpiry">Expiry (MM/YY)</label>
+              <input id="cardExpiry" placeholder="12/27" maxlength="5" value="12/27" />
+            </div>
+            <div>
+              <label for="cardCvc">CVC</label>
+              <input id="cardCvc" placeholder="123" maxlength="4" type="password" value="123" />
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="gap:10px; margin-top:10px;">
+          <button class="btn pay-btn" id="payBtn" type="button" style="flex:1;">🔒 Pay now</button>
+          <button class="btn danger" id="cancelPayBtn" type="button" style="flex:0 0 auto; padding:16px 20px; font-size:1.1em;">✕ Cancel</button>
+        </div>
+
+        <div class="secure-badge">
+          🔒 Payment
+        </div>
+
+        <p id="payStatus" class="hint" style="text-align:center; margin-top:10px;"></p>
+      </div>
+
+      <!-- Processing overlay -->
+      <div class="card processing" id="processingCard">
+        <div class="spinner"></div>
+        <p style="color:var(--muted);">Processing payment…</p>
+      </div>
+
+      <!-- Success -->
+      <div class="card processing" id="successCard">
+        <div class="success-icon">✅</div>
+        <h2>Payment successful!</h2>
+        <p class="muted">Your drone delivery order has been confirmed.</p>
+        <p class="muted" id="successOrderId"></p>
+        <a class="btn" id="trackLink" href="#">Track your delivery →</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container muted">SkyNet - Payment</div>
+  </footer>
+
+  <script src="js/common.js"></script>
+  <script src="js/payment.js"></script>
+</body>
+</html>

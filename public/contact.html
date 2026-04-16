@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkyNet – Contact</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <a href="index.html" class="brand" style="text-decoration: none; color: inherit;">
+        <span>🚁</span>
+        <span>SkyNet</span>
+      </a>
+      <div class="links">
+        <a data-nav href="index.html">Home</a>
+        <a data-nav href="services.html">Services</a>
+        <a data-nav href="order.html">Order</a>
+        <a data-nav href="track.html">Track</a>
+        <a data-nav href="orders.html">Orders</a>
+        <a data-nav href="contact.html" aria-current="page">Contact</a>
+        <a data-nav href="admin-fleet.html">Fleet</a>
+        <a data-nav href="admin-stats.html">Statistics</a>
+        <a data-nav href="admin-contacts.html">Messages</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <h2>Contact us</h2>
+      <p class="hint">
+        Send a message to support. If an admin replies, you will see it below.
+      </p>
+
+      <div class="twoCol">
+        <!-- Left: send form -->
+        <div class="stack">
+          <div class="grid2">
+            <div>
+              <label>Name</label>
+              <input id="name" placeholder="Your name" />
+            </div>
+            <div>
+              <label>Email</label>
+              <input id="email" placeholder="name@email.com" />
+            </div>
+          </div>
+
+          <div>
+            <label>Message</label>
+            <textarea id="message" placeholder="How can we help?"></textarea>
+          </div>
+
+          <div class="row">
+            <button class="btn" id="sendBtn">Send</button>
+            <span class="hint" id="statusHint">—</span>
+          </div>
+        </div>
+
+        <!-- Right: Inbox -->
+        <div class="stack">
+          <div class="row" style="justify-content:space-between; align-items:flex-end;">
+            <h3>Your Inbox</h3>
+          </div>
+
+          <p class="hint">You must be logged in to view your messages.</p>
+
+          <div class="card" style="padding:12px; margin-top:8px;">
+            <div class="row" style="justify-content:space-between; align-items:center;">
+              <b>Unread (New updates)</b>
+              <span class="hint" id="unreadCount">0</span>
+            </div>
+            <div id="contactsUnread" class="stack" style="margin-top:10px;"></div>
+          </div>
+
+          <div class="card" style="padding:12px; margin-top:12px;">
+            <div class="row" style="justify-content:space-between; align-items:center;">
+              <b>Read / History</b>
+              <span class="hint" id="readCount">0</span>
+            </div>
+            <div id="contactsRead" class="stack" style="margin-top:10px;"></div>
+          </div>
+        </div>
+      </div>
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="js/contact-guard.js"></script>
+  <script src="js/contact.js"></script>
+</body>
+</html>

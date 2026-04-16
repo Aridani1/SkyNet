@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkyNet – Admin Mission</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+  <header>
+    <nav class="nav">
+      <a href="admin.html" class="brand" style="text-decoration: none; color: inherit;">
+        <span>🚁</span>
+        <span>SkyNet</span>
+      </a>
+      <div class="links">
+        <a data-nav href="track.html">Track</a>
+        <a data-nav href="orders.html">Orders</a>
+        <a data-nav href="admin-fleet.html">Fleet</a>
+        <a data-nav href="admin-stats.html">Statistics</a>
+        <a data-nav href="admin-contacts.html">Messages</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="card" id="loginCard">
+      <h2>Admin login</h2>
+      <p class="muted">Default user: <b>admin</b> • Password = <code>ADMIN_KEY</code> (env variable).</p>
+      <div class="stack">
+        <label>Username</label>
+        <input id="username" placeholder="admin" />
+        <label>Password</label>
+        <input id="password" type="password" placeholder="••••••" />
+        <button class="btn" id="loginBtn">Login</button>
+        <p id="loginStatus" class="hint"></p>
+      </div>
+    </div>
+
+    <div class="card" id="adminPanel" style="display:none;">
+      <h2>Mission control</h2>
+
+      <div class="card" style="padding:12px;">
+        <h3>Update order</h3>
+
+        <div class="row" style="gap:10px; flex-wrap:wrap;">
+          <input id="orderId" placeholder="Order ID" style="max-width:320px;" />
+          <button class="btn secondary" id="loadBtn">Load</button>
+          <a class="btn" id="trackLink" href="track.html">Open tracking</a>
+        </div>
+
+        <div class="grid2" style="margin-top:10px;">
+          <div>
+            <label>Status</label>
+            <select id="statusSel">
+              <option value="in_transit">in_transit</option>
+              <option value="delivered">delivered</option>
+              <option value="cancelled">cancelled</option>
+            </select>
+          </div>
+
+          <div>
+            <label>&nbsp;</label>
+            <button class="btn" id="updateBtn">Update</button>
+
+            <div style="height:10px;"></div>
+
+            <div class="row" style="gap:10px; flex-wrap:wrap;">
+              <button class="btn secondary" id="acceptBtn">Accept</button>
+              <button class="btn secondary" id="startBtn">Start</button>
+              <button class="btn secondary" id="stopBtn">Pause</button>
+              <button class="btn danger" id="cancelBtn">Cancel</button>
+            </div>
+
+            <div class="hint" id="missionInfo" style="margin-top:8px;">Mission: —</div>
+          </div>
+        </div>
+
+        <div class="hint" id="statusHint">Load an order first.</div>
+      </div>
+    </div>
+
+    <footer>SkyNet Admin • Mission operations</footer>
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkyNet – Create Account</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <div class="brand-container">
+        <a href="index.html" class="brand" style="text-decoration: none; color: inherit;">
+          <span>🚁</span>
+          <span>SkyNet</span>
+        </a>
+        <span class="pill">APP200V demo</span>
+      </div>
+      <div class="links">
+        <a data-nav href="index.html">Home</a>
+        <a data-nav href="services.html">Services</a>
+        <a data-nav href="order.html">Order</a>
+        <a data-nav href="track.html">Track</a>
+        <a data-nav href="contact.html">Contact</a>
+        <a data-nav href="login.html">Login</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="card" style="max-width:560px; margin:0 auto;">
+      <h2>Create customer account</h2>
+      <p class="hint">Username must be at least 3 characters. Password at least 6 characters.</p>
+
+      <div class="stack">
+        <div>
+          <label for="username">Username</label>
+          <input id="username" placeholder="e.g. ari" autocomplete="username" />
+        </div>
+        <div>
+          <label for="password">Password</label>
+          <input id="password" type="password" placeholder="••••••" autocomplete="new-password" />
+        </div>
+        <div>
+          <label for="password2">Repeat password</label>
+          <input id="password2" type="password" placeholder="••••••" autocomplete="new-password" />
+        </div>
+
+        <div class="row" style="gap:10px; flex-wrap:wrap;">
+          <button class="btn" id="registerBtn" type="button">Create account</button>
+          <a class="btn secondary" href="login.html">Back to login</a>
+        </div>
+
+        <div class="hint" id="status">—</div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="js/register.js"></script>
+</body>
+</html>

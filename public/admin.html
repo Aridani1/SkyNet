@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkyNet – Admin</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>location.href="orders.html";</script>
+</head>
+
+<body>
+  <!-- ===== NAV ===== -->
+  <header>
+    <nav class="nav">
+      <a href="admin.html" class="brand" style="text-decoration: none; color: inherit;">
+        <span>🚁</span>
+        <span>SkyNet</span>
+      </a>
+
+      <div class="links">
+        <a data-nav href="track.html">Track</a>
+        <a data-nav href="orders.html">Orders</a>
+        <a data-nav href="admin-fleet.html">Fleet</a>
+        <a data-nav href="admin-stats.html">Statistics</a>
+        <a data-nav href="admin-contacts.html">Messages</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- ===== LOGIN ===== -->
+    <div class="card" id="loginCard">
+      <h2>Admin login</h2>
+      <p class="muted">
+        Default user: <b>admin</b>
+        Password = <code>ADMIN_KEY</code> (env variable).
+      </p>
+
+      <div class="stack">
+        <label>Username</label>
+        <input id="username" placeholder="admin" />
+
+        <label>Password</label>
+        <input id="password" type="password" placeholder="••••••" />
+
+        <button class="btn" id="loginBtn">Login</button>
+        <p id="loginStatus" class="hint"></p>
+      </div>
+    </div>
+
+    <!-- ===== ADMIN MENU ===== -->
+    <div class="card" id="adminPanel" style="display:none;">
+      <h2>Admin menu</h2>
+      <p class="hint">Split into separate pages for better overview.</p>
+
+      <div class="grid2" style="margin-top:10px;">
+        <a class="card" href="admin-mission.html" style="display:block; padding:14px; text-decoration:none;">
+          <b>🎛️ Mission control</b>
+          <div class="hint">Accept/start/stop/cancel an order.</div>
+        </a>
+
+
+        <a class="card" href="admin-stats.html" style="display:block; padding:14px; text-decoration:none;">
+          <b>📊 Statistics</b>
+          <div class="hint">Orders/ETA analytics.</div>
+        </a>
+
+        <a class="card" href="admin-fleet.html" style="display:block; padding:14px; text-decoration:none;">
+          <b>🚁 Fleet</b>
+          <div class="hint">Drone inventory + recharge.</div>
+        </a>
+
+        <a class="card" href="admin-contacts.html" style="display:block; padding:14px; text-decoration:none;">
+          <b>✉️ Contact messages</b>
+          <div class="hint">Inbox from contact form.</div>
+        </a>
+
+        <a class="card" href="orders.html" style="display:block; padding:14px; text-decoration:none;">
+          <b>📦 Orders</b>
+          <div class="hint">Order list (already on its own page).</div>
+        </a>
+      </div>
+    </div>
+
+    <footer>
+      SkyNet Admin
+    </footer>
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkyNet – Admin Statistics</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+  <header>
+    <nav class="nav">
+      <a href="admin.html" class="brand" style="text-decoration: none; color: inherit;">
+        <span>🚁</span>
+        <span>SkyNet</span>
+      </a>
+      <div class="links">
+        <a data-nav href="track.html">Track</a>
+        <a data-nav href="orders.html">Orders</a>
+        <a data-nav href="admin-fleet.html">Fleet</a>
+        <a data-nav href="admin-stats.html" aria-current="page">Statistics</a>
+        <a data-nav href="admin-contacts.html">Messages</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="card" id="loginCard">
+      <h2>Admin login</h2>
+      <p class="muted">Default user: <b>admin</b> • Password = <code>ADMIN_KEY</code> (env variable).</p>
+      <div class="stack">
+        <label>Username</label>
+        <input id="username" placeholder="admin" />
+        <label>Password</label>
+        <input id="password" type="password" placeholder="••••••" />
+        <button class="btn" id="loginBtn">Login</button>
+        <p id="loginStatus" class="hint"></p>
+      </div>
+    </div>
+
+    <div class="card" id="adminPanel" style="display:none;">
+      <h2>Statistics</h2>
+
+      <div class="card" style="padding:12px;">
+        <div class="grid2">
+          <div>
+            <div class="hint">Orders by status</div>
+            <canvas id="chartStatus" height="140"></canvas>
+          </div>
+
+          <div>
+            <div class="hint">Delivered by type</div>
+            <canvas id="chartEtaByType" height="140"></canvas>
+          </div>
+        </div>
+
+        <div style="margin-top:10px;">
+          <div class="hint">Quick stats</div>
+          <div id="statsBox" class="stack"></div>
+        </div>
+      </div>
+    </div>
+
+    <footer>SkyNet Admin • Statistics</footer>
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    // Refresh charts when a drone returns to base (event-driven via WebSocket)
+    (function () {
+      let ws = null;
+
+      function connect() {
+        const token = typeof getAuthToken === "function" ? getAuthToken() : "";
+        if (!token) { setTimeout(connect, 2000); return; }
+        if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
+        const proto = location.protocol === "https:" ? "wss:" : "ws:";
+        const url = proto + "//" + location.host + "/ws?token=" + encodeURIComponent(token);
+
+        try {
+          ws = new WebSocket(url);
+          ws.onmessage = function (ev) {
+            try {
+              const data = JSON.parse(ev.data);
+              if (data.type === "delivery_completed" && typeof loadOrders === "function") {
+                loadOrders();
+              }
+            } catch {}
+          };
+          ws.onclose = function () { ws = null; setTimeout(connect, 2000); };
+          ws.onerror = function () {};
+        } catch { setTimeout(connect, 2000); }
+      }
+
+      setTimeout(connect, 1500);
+    })();
+  </script>
+</body>
+</html>

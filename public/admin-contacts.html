@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkyNet – Admin Messages</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+  <header>
+    <nav class="nav">
+      <a href="admin.html" class="brand" style="text-decoration: none; color: inherit;">
+        <span>🚁</span>
+        <span>SkyNet</span>
+      </a>
+      <div class="links">
+        <a data-nav href="track.html">Track</a>
+        <a data-nav href="orders.html">Orders</a>
+        <a data-nav href="admin-fleet.html">Fleet</a>
+        <a data-nav href="admin-stats.html">Statistics</a>
+        <a data-nav href="admin-contacts.html" aria-current="page">Messages</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="card" id="loginCard">
+      <h2>Admin login</h2>
+      <p class="muted">Default user: <b>admin</b> • Password = <code>ADMIN_KEY</code> (env variable).</p>
+      <div class="stack">
+        <label>Username</label>
+        <input id="username" placeholder="admin" />
+        <label>Password</label>
+        <input id="password" type="password" placeholder="••••••" />
+        <button class="btn" id="loginBtn">Login</button>
+        <p id="loginStatus" class="hint"></p>
+      </div>
+    </div>
+
+    <div class="card" id="adminPanel" style="display:none;">
+      <div class="row" style="justify-content:space-between; align-items:center;">
+        <h2 style="margin:0;">Contact messages</h2>
+        <div class="row" style="gap:10px; align-items:center;">
+          <input id="contactSearch" autocomplete="off" placeholder="Search name or email..." style="max-width:250px; padding:6px; font-size:13px;" />
+          <span class="hint" id="contactsCountHint">—</span>
+        </div>
+      </div>
+
+      <div class="twoCol" style="margin-top:12px;">
+        <div class="card" style="padding:12px;">
+          <div class="row" style="justify-content:space-between; align-items:center;">
+            <b>Unread</b>
+            <span class="hint" id="unreadCount">0</span>
+          </div>
+          <div id="contactsUnread" class="stack" style="margin-top:10px;"></div>
+        </div>
+
+        <div class="card" style="padding:12px;">
+          <div class="row" style="justify-content:space-between; align-items:center;">
+            <b>Read</b>
+            <span class="hint" id="readCount">0</span>
+          </div>
+          <div id="contactsRead" class="stack" style="margin-top:10px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <footer>SkyNet Admin • Messages</footer>
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
