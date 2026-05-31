@@ -1,4 +1,4 @@
-// contact.js
+// contact.js @Anwar
 
 function qs(sel) {
   const el = document.querySelector(sel);

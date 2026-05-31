@@ -1,4 +1,4 @@
-/* global google */
+/* global google */ // @ShazebAyubAlam
 
 const state = {
   services: null,

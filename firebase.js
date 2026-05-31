@@ -1,4 +1,4 @@
-// firebase.js – Firebase Admin SDK initialization and Firestore collection references
+// firebase.js – Firebase Admin SDK initialization and Firestore collection references @AridaniDahlGuerra
 const admin = require("firebase-admin");
 const path = require("path");
 

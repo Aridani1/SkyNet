@@ -1,4 +1,4 @@
-// public/js/admin.js
+// public/js/admin.js @ShazebAyubAlam (statistics) @AridaniDahlGuerra (fleet/drones) @Anwar (contacts)
 
 let current = null;
 let cachedOrders = [];
@@ -21,7 +21,7 @@ function setStatus(el, msg, kind = "") {
 
 function escapeHtml(s) {
   return String(s ?? "")
-    .replaceAll("&", "&amp;")
+    .replaceAll("&", "&")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
@@ -35,7 +35,7 @@ function getParam(name) {
 
 async function login() {
   const status = qsm("#loginStatus");
-  setStatus(status, "Logging inâ€¦");
+  setStatus(status, "Logging in…");
 
   const username = (qsm("#username")?.value || "").trim();
   const password = qsm("#password")?.value || "";
@@ -60,7 +60,7 @@ async function login() {
   }
 
   setAuth(data.token, data.user);
-  setStatus(status, "OK! Loading admin panelâ€¦");
+  setStatus(status, "OK! Loading admin panel…");
 
   const loginCard = qsm("#loginCard");
   const adminPanel = qsm("#adminPanel");
@@ -76,21 +76,21 @@ function cardOrder(o) {
   const div = document.createElement("div");
   div.className = "kpi";
   const canCancel = ["created", "awaiting_payment"].includes(o.status);
-  const statusLabel = o.status === "awaiting_payment" ? "ðŸ’³ Awaiting payment"
-    : o.status === "created" ? "ðŸ“ Created"
-    : o.status === "accepted" ? "âœ… Accepted"
-    : o.status === "in_transit" ? "âœˆï¸ In transit"
-    : o.status === "returning" ? "ðŸ”„ Returning"
-    : o.status === "delivered" ? "ðŸ“¦ Delivered"
-    : o.status === "cancelled" ? "ðŸ›‘ Cancelled"
-    : escapeHtml(o.status || "â€”");
+  const statusLabel = o.status === "awaiting_payment" ? "💳 Awaiting payment"
+    : o.status === "created" ? "📝 Created"
+    : o.status === "accepted" ? "✅ Accepted"
+    : o.status === "in_transit" ? "✈️ In transit"
+    : o.status === "returning" ? "🔄 Returning"
+    : o.status === "delivered" ? "📦 Delivered"
+    : o.status === "cancelled" ? "🛑 Cancelled"
+    : escapeHtml(o.status || "—");
 
   div.innerHTML = `
-    <div>ðŸ“¦</div>
+    <div>📦</div>
     <div style="width:100%">
       <b>#${escapeHtml(o._id)}</b>
-      <span>${escapeHtml(o.customerName || "â€”")} â€¢ <b>${statusLabel}</b> â€¢ ${new Date(o.createdAt).toLocaleString("en-GB")}</span>
-      <div class="hint">ETA: ${Number.isFinite(o.etaMinutes) ? o.etaMinutes : "â€”"} min${o.etaSource ? " (" + escapeHtml(o.etaSource) + ")" : ""} â€¢ Drone: ${escapeHtml(o.drone?.droneId || "â€”")}</div>
+      <span>${escapeHtml(o.customerName || "—")} • <b>${statusLabel}</b> • ${new Date(o.createdAt).toLocaleString("en-GB")}</span>
+      <div class="hint">ETA: ${Number.isFinite(o.etaMinutes) ? o.etaMinutes : "—"} min${o.etaSource ? " (" + escapeHtml(o.etaSource) + ")" : ""} • Drone: ${escapeHtml(o.drone?.droneId || "—")}</div>
       ${o.loadTimeoutAlert && o.missionPhase === "awaiting_load" ? `<div class="badge danger" style="margin-top:4px; display:inline-block;">⚠️ Timeout >10m</div>` : ""}
       ${o.recall && ["timeout_auto_recall", "customer_cancel_at_pickup", "customer_no_load"].includes(o.recall.reason) ? `<div class="badge danger" style="margin-top:4px; display:inline-block;">🛑 Recalled at pickup (Charged)</div>` : ""}
       <div class="row" style="margin-top:8px; gap:6px; flex-wrap:wrap;">
@@ -171,7 +171,7 @@ async function loadOrders() {
   for (const o of cachedOrders) box.appendChild(cardOrder(o));
 }
 
-// ---------------- Stats ----------------
+// ---------------- Stats ---------------- @ShazebAyubAlam
 
 function renderStats() {
   const box = qsm("#statsBox");
@@ -182,9 +182,10 @@ function renderStats() {
   const withEta = orders.filter((o) => Number.isFinite(o.etaMinutes)).length;
 
   const byStatus = {};
-  const byType = {};
+  const byType = { light: 0, heavy: 0, longrange: 0 };
   const bySource = {};
   const deliveredByType = { light: 0, heavy: 0, longrange: 0 };
+  const etaByType = {};
 
   for (const o of orders) {
     const st = o.status || "unknown";
@@ -209,20 +210,38 @@ function renderStats() {
   const inTransit = byStatus.in_transit || 0;
   const cancelled = byStatus.cancelled || 0;
 
+  // Avg ETA only for active orders (not completed/cancelled where ETA = 0)
   const avgEta = (() => {
-    const xs = orders.map((o) => o.etaMinutes).filter((x) => Number.isFinite(x));
+    const active = orders.filter(o => !["delivered", "cancelled"].includes(o.status));
+    const xs = active.map(o => o.etaMinutes).filter(x => Number.isFinite(x) && x > 0);
     if (!xs.length) return null;
     const avg = xs.reduce((a, b) => a + b, 0) / xs.length;
     return Math.round(avg * 10) / 10;
   })();
 
+  // Avg actual delivery time for completed orders
+  const avgDeliveryTime = (() => {
+    const done = orders.filter(o => o.status === "delivered");
+    if (!done.length) return null;
+    const times = done.map(o => {
+      if (Number.isFinite(o.actualMinutes)) return o.actualMinutes;
+      if (o.deliveredAt && o.createdAt) {
+        return Math.max(1, (new Date(o.deliveredAt).getTime() - new Date(o.createdAt).getTime()) / 60000);
+      }
+      return null;
+    }).filter(x => x !== null);
+    if (!times.length) return null;
+    const avg = times.reduce((a, b) => a + b, 0) / times.length;
+    return Math.round(avg * 10) / 10;
+  })();
+
   box.innerHTML = `
-    <div class="kpi"><div>ðŸ“¦</div><div><b>${total}</b><span>Total orders</span></div></div>
-    <div class="kpi"><div>â±ï¸</div><div><b>${avgEta ?? "â€”"}</b><span>Avg ETA (min)</span></div></div>
-    <div class="kpi"><div>âœ…</div><div><b>${delivered}</b><span>Delivered</span></div></div>
-    <div class="kpi"><div>ðŸšš</div><div><b>${inTransit}</b><span>In transit</span></div></div>
-    <div class="kpi"><div>ðŸ›‘</div><div><b>${cancelled}</b><span>Cancelled</span></div></div>
-    <div class="kpi"><div>ðŸ§ </div><div><b>${withEta}</b><span>Orders with ETA</span></div></div>
+    <div class="kpi"><div>📦</div><div><b>${total}</b><span>Total orders</span></div></div>
+    <div class="kpi"><div>⏱️</div><div><b>${avgEta ?? "—"}</b><span>Avg ETA (min)</span></div></div>
+    <div class="kpi"><div>✅</div><div><b>${delivered}</b><span>Delivered</span></div></div>
+    <div class="kpi"><div>🚚</div><div><b>${inTransit || "—"}</b><span>In transit</span></div></div>
+    <div class="kpi"><div>🛑</div><div><b>${cancelled}</b><span>Cancelled</span></div></div>
+    <div class="kpi"><div>🕐</div><div><b>${avgDeliveryTime ?? "—"}</b><span>Avg delivery (min)</span></div></div>
   `;
 
   // If Chart.js isn't loaded, stop.
@@ -248,49 +267,49 @@ function renderStats() {
     });
   }
 
-  // ETA by delivery type (avg)
+  // Delivered orders by package type
   const typeNameMap = {
     light: "Light package", heavy: "Heavy package", longrange: "Long range",
     standard: "Light package", express: "Heavy package", fragile: "Long range"
   };
-  const typeLabels = Object.keys(etaByType).map(t => typeNameMap[t] || t);
-  const typeData = Object.keys(etaByType).map((t) => Math.round((etaByType[t].sum / etaByType[t].n) * 10) / 10);
+  const typeLabels = Object.keys(byType).map(t => typeNameMap[t] || t);
+  const typeData = Object.keys(byType).map(t => byType[t]);
   const ctxEta = qsm("#chartEtaByType")?.getContext?.("2d");
   if (ctxEta) {
     _charts.etaByType = new Chart(ctxEta, {
       type: "bar",
-      data: { labels: typeLabels, datasets: [{ data: typeData, label: "Avg ETA (min)" }] },
+      data: { labels: typeLabels, datasets: [{ data: typeData, label: "Orders" }] },
       options: {
         responsive: true,
         plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
       },
     });
   }
 }
 
-// ---------------- Contacts (Unread / Read) ----------------
+// ---------------- Contacts (Unread / Read) ---------------- @Anwar
 
 function cardContact(c) {
   const div = document.createElement("div");
   div.className = "kpi";
 
-  const created = c.createdAt ? new Date(c.createdAt).toLocaleString("en-GB") : "â€”";
+  const created = c.createdAt ? new Date(c.createdAt).toLocaleString("en-GB") : "—";
   const replied = c.repliedAt ? new Date(c.repliedAt).toLocaleString("en-GB") : "";
   const isUnread = c.adminUnread === true;
 
   div.innerHTML = `
-    <div>âœ‰ï¸</div>
+    <div>✉️</div>
     <div style="width:100%">
       <div class="row" style="justify-content:space-between; align-items:center; gap:10px;">
         <div class="stack" style="gap:2px;">
-          <b>${escapeHtml(c.name || "â€”")}</b>
-          <span>${escapeHtml(c.email || "â€”")} â€¢ ${created}</span>
+          <b>${escapeHtml(c.name || "—")}</b>
+          <span>${escapeHtml(c.email || "—")} • ${created}</span>
         </div>
         <div class="row" style="gap:10px; align-items:center;">
           ${
             isUnread
-              ? `<span class="hint" style="color:var(--danger); font-weight:700;">â— ULest</span>`
+              ? `<span class="hint" style="color:var(--danger); font-weight:700;">● ULest</span>`
               : `<span class="hint">Lest</span>`
           }
         </div>
@@ -325,7 +344,7 @@ function cardContact(c) {
 
     btnReply.disabled = true;
     const old = btnReply.textContent;
-    btnReply.textContent = "Sendingâ€¦";
+    btnReply.textContent = "Sending…";
 
     try {
       const res = await fetch(`/api/contacts/${encodeURIComponent(id)}/reply`, {
@@ -444,7 +463,7 @@ function applyContactSearchFilter() {
   });
 }
 
-// ---------------- Drones ----------------
+// ---------------- Drones ---------------- @AridaniDahlGuerra
 
 function cardDrone(d) {
   const div = document.createElement("div");
@@ -452,37 +471,37 @@ function cardDrone(d) {
   const batt = Math.round(d.battery ?? 0);
   const type = d.droneType || "light";
   const rangeKey = type === "heavy" ? "rangeKmHeavy" : type === "longrange" ? "rangeKmLongrange" : "rangeKmLight";
-  const rangeVal = Number.isFinite(d[rangeKey]) ? d[rangeKey].toFixed(1) : "â€”";
+  const rangeVal = Number.isFinite(d[rangeKey]) ? d[rangeKey].toFixed(1) : "—";
   const isCharging = d.status === "charging";
   const isOnMission = ["in flight", "returning", "awaiting_load", "accepted"].includes(d.status);
   const isBusy = isOnMission || d.status === "assigned";
 
   const battColor = batt > 60 ? "#22c55e" : batt > 25 ? "#eab308" : "#ef4444";
 
-  const typeLabel = type === "heavy" ? "ðŸ‹ï¸ Heavy"
-    : type === "longrange" ? "ðŸŒ Long Range"
-    : "ðŸ“¦ Light";
+  const typeLabel = type === "heavy" ? "🏋️ Heavy"
+    : type === "longrange" ? "🌍 Long Range"
+    : "📦 Light";
 
   const statusIcon = isCharging ? "âš¡ Charging"
-    : d.status === "in flight" ? "âœˆï¸ In Flight"
-    : d.status === "returning" ? "ðŸ”„ Returning"
-    : d.status === "awaiting_load" ? "â³ Awaiting Load"
-    : d.status === "assigned" ? "ðŸ“‹ Assigned"
-    : d.status === "idle" ? "âœ… Idle"
-    : escapeHtml(d.status || "â€”");
+    : d.status === "in flight" ? "✈️ In Flight"
+    : d.status === "returning" ? "🔄 Returning"
+    : d.status === "awaiting_load" ? "⏳ Awaiting Load"
+    : d.status === "assigned" ? "📋 Assigned"
+    : d.status === "idle" ? "✅ Idle"
+    : escapeHtml(d.status || "—");
 
   div.innerHTML = `
-    <div>ðŸš</div>
+    <div>🚁</div>
     <div style="width:100%">
-      <b>${escapeHtml(d.droneId || "â€”")}</b> <span class="pill" style="font-size:0.75em; vertical-align:middle;">${typeLabel}</span>
-      <span>Status: <b>${statusIcon}</b> â€¢ Battery: <b>${batt}%</b> â€¢ Range: ~${rangeVal} km</span>
+      <b>${escapeHtml(d.droneId || "—")}</b> <span class="pill" style="font-size:0.75em; vertical-align:middle;">${typeLabel}</span>
+      <span>Status: <b>${statusIcon}</b> • Battery: <b>${batt}%</b> • Range: ~${rangeVal} km</span>
       <div style="margin-top:6px; background:rgba(255,255,255,0.1); border-radius:6px; height:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.15);">
         <div style="width:${batt}%; height:100%; background:${battColor}; border-radius:4px; transition:width 0.8s ease;"></div>
       </div>
-      ${isCharging ? `<div class="hint" style="margin-top:2px;">âš¡ Auto-chargingâ€¦ ${batt}%</div>` : ""}
-      ${isOnMission ? `<div class="hint" style="margin-top:2px;">ðŸ”‹ ${batt}% remaining</div>` : ""}
+      ${isCharging ? `<div class="hint" style="margin-top:2px;">⚡ Auto-charging… ${batt}%</div>` : ""}
+      ${isOnMission ? `<div class="hint" style="margin-top:2px;">🔋 ${batt}% remaining</div>` : ""}
       <div class="row" style="margin-top:8px; gap:8px; flex-wrap:wrap;">
-        <button class="btn secondary" data-recharge="1"${isBusy ? " disabled" : ""}>ðŸ”‹ Swap Battery</button>
+        <button class="btn secondary" data-recharge="1"${isBusy ? " disabled" : ""}>🔋 Swap Battery</button>
       </div>
       ${d.assignedOrderId ? `<div class="hint" style="margin-top:6px;">Assigned to order: ${escapeHtml(d.assignedOrderId)}</div>` : ""}
     </div>
@@ -514,9 +533,9 @@ async function loadDrones() {
   const box = qsm("#drones");
   if (!box) return;
 
-  // Only show "Loadingâ€¦" on very first load
+  // Only show "Loading…" on very first load
   if (!box.children.length || (box.children.length === 1 && box.querySelector(".hint"))) {
-    box.innerHTML = "<div class='hint'>Loadingâ€¦</div>";
+    box.innerHTML = "<div class='hint'>Loading…</div>";
   }
 
   const res = await fetch("/api/drones", { headers: authHeaders() }).catch(() => null);
@@ -562,7 +581,7 @@ async function selectOrder(id) {
   if (trackLink) trackLink.href = `track.html?id=${encodeURIComponent(id)}`;
 
   const hint = qsm("#statusHint") || { textContent: "", style: {} };
-  setStatus(hint, "Loading orderâ€¦");
+  setStatus(hint, "Loading order…");
 
   const res = await fetch(`/api/orders/${encodeURIComponent(id)}`, { headers: authHeaders() }).catch(() => null);
   if (!res || !res.ok) {
@@ -584,10 +603,10 @@ async function selectOrder(id) {
   if (mission) {
     mission.textContent =
       current.status === "in_transit"
-        ? `Mission: ${Math.round((current.progress || 0) * 100)}% â€¢ ETA ${current.etaMinutes ?? "â€”"} min â€¢ Battery ${Math.round(current.drone?.battery ?? 0)}%`
+        ? `Mission: ${Math.round((current.progress || 0) * 100)}% • ETA ${current.etaMinutes ?? "—"} min • Battery ${Math.round(current.drone?.battery ?? 0)}%`
         : current.status === "awaiting_payment"
-        ? `Mission: â³ Awaiting customer payment`
-        : `Mission: â€”`;
+        ? `Mission: ⏳ Awaiting customer payment`
+        : `Mission: —`;
   }
 
   setStatus(hint, `Selected order #${current._id}.`);
@@ -596,7 +615,7 @@ async function selectOrder(id) {
 async function callAdminAction(action) {
   const hint = qsm("#statusHint") || { textContent: "", style: {} };
   if (!current) return setStatus(hint, "Load an order first.", "error");
-  setStatus(hint, "Executingâ€¦");
+  setStatus(hint, "Executing…");
 
   const res = await fetch(`/api/orders/${encodeURIComponent(current._id)}/${action}`, {
     method: "POST",
@@ -682,7 +701,7 @@ if (searchInput) {
     .catch(() => {});
 })();
 
-// ============ FLEET RADAR (admin-fleet page) ============
+// ============ FLEET RADAR (admin-fleet page) ============ @AridaniDahlGuerra
 (function initFleetRadar() {
   const canvas = document.querySelector("#fleetRadar");
   if (!canvas) return;
@@ -866,11 +885,11 @@ if (searchInput) {
 
       ctx.fillStyle = "rgba(232,238,252,0.85)";
       ctx.font = "700 10px ui-sans-serif, system-ui";
-      ctx.fillText("ðŸš", dp.x - 7, dp.y - r - 3);
+      ctx.fillText("🚁", dp.x - 7, dp.y - r - 3);
 
       dots.push({
         x: dp.x, y: dp.y, r: r + 5,
-        info: `<b>ðŸš ${escapeHtml(droneId)}</b><br>Status: ${escapeHtml(st)}<br>Phase: ${escapeHtml(order?.missionPhase || "â€”")}<br>Battery: ${batt}%<br>Speed: ${order?.drone?.speedKmph ?? "â€”"} km/h<br>Order: ${escapeHtml(order?._id?.slice(0, 10) || "â€”")}<br>Distance: ${dp.km.toFixed(1)} km`
+        info: `<b>🚁 ${escapeHtml(droneId)}</b><br>Status: ${escapeHtml(st)}<br>Phase: ${escapeHtml(order?.missionPhase || "—")}<br>Battery: ${batt}%<br>Speed: ${order?.drone?.speedKmph ?? "—"} km/h<br>Order: ${escapeHtml(order?._id?.slice(0, 10) || "—")}<br>Distance: ${dp.km.toFixed(1)} km`
       });
     }
 
@@ -894,7 +913,7 @@ if (searchInput) {
 
       dots.push({
         x: dx, y: dy, r: 8,
-        info: `<b>ðŸš ${escapeHtml(droneId)}</b><br>Status: ${escapeHtml(st)}<br>Battery: ${batt}%<br>At base`
+        info: `<b>🚁 ${escapeHtml(droneId)}</b><br>Status: ${escapeHtml(st)}<br>Battery: ${batt}%<br>At base`
       });
     }
 
@@ -915,7 +934,7 @@ if (searchInput) {
 
     ctx.fillStyle = "rgba(232,238,252,0.5)";
     ctx.font = "500 11px ui-sans-serif, system-ui";
-    ctx.fillText(`${allIds.size} drones â€¢ ${activeIds.length} active`, cw - 150, 20);
+    ctx.fillText(`${allIds.size} drones • ${activeIds.length} active`, cw - 150, 20);
 
     t++;
     requestAnimationFrame(draw);

@@ -1,3 +1,4 @@
+// @AssaadMohammadAatfaYamlik
 function nextUrl(){
   const n = getParam("next");
   return n ? String(n) : "index.html";

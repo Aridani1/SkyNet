@@ -1,4 +1,4 @@
-// server.js
+// server.js @AridaniDahlGuerra (backend lead – shared infrastructure, WebSocket, Firestore, auth, drone simulation, fleet)
 require("dotenv").config();
 const path = require("path");
 const crypto = require("crypto");
@@ -68,7 +68,7 @@ function requireCustomer(req, res, next) {
   });
 }
 
-// ===== Firestore helper functions =====
+// ===== Firestore helper functions ===== @AridaniDahlGuerra
 // These provide a NeDB-like interface over Firestore for easier migration
 
 async function fsInsert(col, doc) {
@@ -132,7 +132,7 @@ async function fsRemove(col, docId) {
 app.use(express.json({ limit: "1mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
-// ===== Users / Auth =====
+// ===== Users / Auth ===== @AridaniDahlGuerra @AssaadMohammadAatfaYamlik
 function nowIso() {
   return new Date().toISOString();
 }
@@ -158,7 +158,7 @@ async function ensureBootstrapAdmin() {
   console.log("[INFO] Bootstrap admin created: username=admin (password from ADMIN_KEY env)");
 }
 
-// ===== Drone Realism Constants =====
+// ===== Drone Realism Constants ===== @AridaniDahlGuerra
 const CRUISE_ALT_M        = 120;   // cruising altitude in meters
 const VERTICAL_SPEED_MPS  = 3;     // climb / descent rate m/s
 const SENSOR_BUBBLE_M     = 50;    // proximity sensor radius
@@ -169,7 +169,7 @@ const BASKET_OPEN_TICKS   = 4;     // ticks for basket operations
 const EMERGENCY_BATT_PCT  = 15;    // auto-return threshold
 const CRITICAL_BATT_PCT   = 5;     // emergency landing threshold
 
-// ===== Basket / Cargo Dimensions per drone type (cm) =====
+// ===== Basket / Cargo Dimensions per drone type (cm) ===== @AridaniDahlGuerra
 const BASKET_DIMENSIONS = {
   light:     { lengthCm: 30, widthCm: 25, heightCm: 20, label: "Light (30×25×20 cm)" },
   heavy:     { lengthCm: 45, widthCm: 35, heightCm: 30, label: "Heavy (45×35×30 cm)" },
@@ -191,7 +191,7 @@ function findFittingBasketTypes(pkgL, pkgW, pkgH) {
   return Object.keys(BASKET_DIMENSIONS).filter(type => packageFitsBasket(pkgL, pkgW, pkgH, type));
 }
 
-// ===== Free Weather API (Open-Meteo) =====
+// ===== Free Weather API (Open-Meteo) ===== @AridaniDahlGuerra
 async function fetchWeatherForCoords(lat, lng) {
   if (typeof fetch !== "function") return generateFallbackWeather();
   try {
@@ -265,7 +265,7 @@ function weatherBatteryFactor(weather) {
   return 1;
 }
 
-// ===== Geofencing / No-Fly Zones (Hamar area) =====
+// ===== Geofencing / No-Fly Zones ===== @AridaniDahlGuerra
 const NO_FLY_ZONES = [
   {
     id: "nfz-basto-fosen",
@@ -366,7 +366,7 @@ async function assignDroneToOrder(orderId, droneId) {
   await updateDroneByDroneId(droneId, { status: "assigned", assignedOrderId: orderId, updatedAt: nowIso() });
 }
 
-// ===== Drone charging system =====
+// ===== Drone charging system ===== @AridaniDahlGuerra
 const chargingTimers = new Map();
 
 function stopCharging(droneId) {
@@ -485,7 +485,7 @@ function batteryDrainPerKm(type) {
   return 1.5;
 }
 
-// ===== Minimal WebSocket server (no deps) =====
+// ===== Minimal WebSocket server (no deps) ===== @AridaniDahlGuerra
 const WS_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 const wsClients = new Set(); // { socket, user, subs: { orderId, all, contacts }, buf }
 
@@ -749,7 +749,7 @@ server.on("upgrade", (req, socket) => {
   }
 });
 
-// ===== Simulation manager (server-side) =====
+// ===== Simulation manager (server-side) ===== @AridaniDahlGuerra
 const sim = new Map(); // orderId -> intervalHandle
 
 async function stopSimulation(orderId) {
@@ -1479,7 +1479,7 @@ app.get("/api/geofence/zones", (req, res) => {
   res.json(NO_FLY_ZONES);
 });
 
-// --- Auth ---
+// --- Auth --- @AridaniDahlGuerra @AssaadMohammadAatfaYamlik
 app.post("/api/auth/register", async (req, res) => {
   try {
     const { username, password } = req.body || {};
@@ -1542,7 +1542,7 @@ app.post("/api/auth/logout", requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
-// --- Drone fleet (admin) ---
+// --- Drone fleet (admin) --- @AridaniDahlGuerra
 app.get("/api/drones", requireAdmin, async (req, res) => {
   try {
     await ensureSeedDrones();
@@ -1605,7 +1605,7 @@ app.post("/api/drones/:id/recharge", requireAdmin, async (req, res) => {
   }
 });
 
-// --- Orders ---
+// --- Orders --- @ShazebAyubAlam @AssaadMohammadAatfaYamlik
 app.post("/api/orders", requireCustomer, async (req, res) => {
   try {
     const { customerName, phone, email, base, pickup, delivery, packageWeightKg, deliveryType, notes, packageDimensions } = req.body || {};
@@ -1722,7 +1722,7 @@ app.post("/api/orders", requireCustomer, async (req, res) => {
   }
 });
 
-// --- Pay order (simulated payment) ---
+// --- Pay order (simulated payment) --- @ShazebAyubAlam
 app.post("/api/orders/:id/pay", requireCustomer, async (req, res) => {
   try {
     const o = await fsFindOne(ordersCol, { _id: req.params.id });
@@ -1984,7 +1984,7 @@ app.get("/api/orders/:id/events", requireAuth, async (req, res) => {
   }
 });
 
-// ===================== CONTACTS & NAV BADGES =====================
+// ===================== CONTACTS & NAV BADGES ===================== @Anwar
 async function getPendingOrdersCount(userId) {
   if (!userId) return 0;
   return await fsCount(ordersCol, {

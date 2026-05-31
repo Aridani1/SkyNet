@@ -1,6 +1,6 @@
 /* global google */
 
-// Track page:
+// Track page: @AridaniDahlGuerra
 // - Connects to WebSocket (/ws) using auth token
 // - Subscribes to one order (customer/admin)
 // - Smoothly animates drone marker updates using Google Maps Geometry
